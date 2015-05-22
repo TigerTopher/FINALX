@@ -4,11 +4,32 @@ from tkSimpleDialog import *
 from Tkinter import *
 from PIL import Image, ImageTk
 import Syntax
+from pygments import lex as LEXI
+from tkFont import *
+from pygments.lexers import PythonLexer
+from pygments.styles import get_style_by_name
+from pygments.token import Keyword, Name, Comment, String, Error, Number, Operator, Generic, Token, Whitespace
+
 
 START = '1.0'
 SEL_FIRST = SEL + '.first'
 SEL_LAST = SEL + '.last'
-        
+
+
+class MyPythonLexer(PythonLexer):
+    EXTRA_KEYWORDS = set(('fi', 'end'))
+    EXTRA_FUNC = set(('print', 'read'))
+
+    def get_tokens_unprocessed(self, text):
+        for index, token, value in PythonLexer.get_tokens_unprocessed(self, text):
+            if token is Name and value in self.EXTRA_KEYWORDS:
+                yield index, Keyword, value
+
+            elif token is Name and value in self.EXTRA_FUNC:
+                yield index, Name.Function, value
+            else:
+                yield index, token, value
+
 
 class GUI():
         UPDATE = 100
@@ -57,7 +78,11 @@ class GUI():
                 self.root = Tk()
                 self.root.geometry("800x600")
                 self.root.title("PrismX")
-                self.root.wm_iconbitmap("prismicon.ico")
+                try:
+                    self.root.wm_iconbitmap("prismicon.ico")
+                except:
+                    pass
+
                 
                 menubar = Menu(self.root)
 
@@ -112,7 +137,10 @@ class GUI():
                                  bd = 0,
                                  padx = 4,
                                  undo = True,
-                                 background = 'white')
+                                 background = a.background_color,
+                                 highlightcolor = a.highlight_color,
+                                 insertbackground = "white",
+                                 fg = "white")
                 
                 self.text.pack(side=LEFT, fill=BOTH, expand=YES)
 
@@ -120,6 +148,7 @@ class GUI():
                 scroll.pack(side=RIGHT, fill=Y)
 
                 self.text["yscrollcommand"] = scroll.set
+                self.text.bind("<KeyRelease>", self.color)
 
 
                 self.text.bind("<Control-n>", self.dispNew)
@@ -142,6 +171,10 @@ class GUI():
                 
                 if self.__class__.updateId is None:
                         self.updateAllNum()
+
+ 
+
+                
                 
         #File menu commands
         def new(self):
@@ -460,5 +493,87 @@ class GUI():
         def dispCompileRun(self, event = None):
                 self.run()
                 return "break"
-                
+
+        def noItalic(self, str):
+                if str == "noItalic":
+                        return "roman"
+                else:
+                        return "italic"
+
+        def noBold(self, str):
+                if str == "noBold":
+                        return "normal"
+                else:
+                        return "bold"
+
+        def color(self, event = None):
+                self.text.mark_set("range_start", "1.0")
+                data = self.text.get("1.0", "end-1c")
+
+                basefont = 'Courier'
+                basesize = 10
+
+                self.text.tag_configure("Token.Text", foreground = "white")
+                self.text.tag_configure("Token.Token", foreground = a.styles[Token])
+
+                self.text.tag_configure("Token.Whitespace", foreground = a.styles[Whitespace])
+
+                self.text.tag_configure("Token.Comment.Special", foreground = a.styles[Comment.Special].split(' ')[2], font = Font(family = basefont, size = basesize, slant = self.noItalic(a.styles[Comment.Special].split(' ')[0]), weight = a.styles[Comment.Special].split(' ')[1]))
+                self.text.tag_configure("Token.Comment", foreground = a.styles[Comment].split(' ')[1], font = Font(family = basefont, size = basesize, slant = a.styles[Comment].split(' ')[0]))
+                #self.text.tag_configure("Token.Comment.Multiline", foreground = "#e50808")
+                self.text.tag_configure("Token.Comment.Preproc", foreground = a.styles[Comment.Preproc].split(' ')[2], font = Font(family = basefont, size = basesize, slant = self.noItalic(a.styles[Comment.Preproc].split(' ')[0]), weight = a.styles[Comment.Preproc].split(' ')[1]))
+
+                self.text.tag_configure("Token.Keyword", foreground = a.styles[Keyword].split(' ')[1], font = Font(family = basefont, size = basesize, weight = a.styles[Keyword].split(' ')[0]))
+                self.text.tag_configure("Token.Keyword.Namespace", foreground = a.styles[Keyword].split(' ')[1], font = Font(family = basefont, size = basesize, weight = a.styles[Keyword].split(' ')[0]))
+                self.text.tag_configure("Token.Keyword.Pseudo", font = Font(family = basefont, size = basesize, weight = self.noBold(a.styles[Keyword.Pseudo])))
+                self.text.tag_configure("Token.Keyword.Reserved", font = Font(family = basefont, size = basesize, weight = self.noBold(a.styles[Keyword.Pseudo])))
+                self.text.tag_configure("Token.Keyword.Type", foreground = a.styles[Keyword.Type])
+
+                self.text.tag_configure("Token.Operator", foreground = "white")
+                self.text.tag_configure("Token.Operator.Word", foreground = a.styles[Operator.Word].split(' ')[1], font = Font(family = basefont, size = basesize, weight = a.styles[Operator.Word].split(' ')[0]))
+
+                self.text.tag_configure("Token.String", foreground = a.styles[String])
+                self.text.tag_configure("Token.String.Char", foreground = "#40ffff")
+                self.text.tag_configure("Token.String.Double", foreground = "#40ffff")
+                self.text.tag_configure("Token.String.Other", foreground = a.styles[String.Other])
+
+                self.text.tag_configure("Token.Literal.String", foreground = "#ffa")
+
+                self.text.tag_configure("Token.Number", foreground = a.styles[Number])
+
+                self.text.tag_configure("Token.Name.Builtin", foreground = a.styles[Name.Builtin])
+                self.text.tag_configure("Token.Name.Builtin.Pseudo", foreground = a.styles[Name.Builtin])
+                self.text.tag_configure("Token.Name.Function", foreground = a.styles[Name.Function])
+                self.text.tag_configure("Token.Name.Class", foreground = a.styles[Name.Class].split(' ')[1], font = Font(family = basefont, size = basesize, underline =  1))
+                self.text.tag_configure("Token.Name.Namespace", foreground = a.styles[Name.Namespace].split(' ')[1], font = Font(family = basefont, size = basesize, underline =  1))
+                self.text.tag_configure("Token.Name.Exception", foreground = a.styles[Name.Exception])
+                self.text.tag_configure("Token.Name.Variable", foreground = a.styles[Name.Variable])
+                self.text.tag_configure("Token.Name.Constant", foreground = a.styles[Name.Constant])
+                self.text.tag_configure("Token.Name.Tag", foreground = a.styles[Name.Tag].split(' ')[1], font = Font(family = basefont, size = basesize, weight = a.styles[Name.Tag].split(' ')[0]))
+                self.text.tag_configure("Token.Name.Attribute", foreground = a.styles[Name.Attribute])
+                self.text.tag_configure("Token.Name.Decorator", foreground = a.styles[Name.Decorator])
+
+
+                self.text.tag_configure("Token.Generic.Heading", foreground = a.styles[Generic.Heading].split(' ')[1], font = Font(family = basefont, size = basesize, weight = a.styles[Generic.Heading].split(' ')[0]))
+                self.text.tag_configure("Token.Generic.Subheading", foreground = a.styles[Generic.Subheading].split(' ')[1], font = Font(family = basefont, size = basesize, underline = 1))
+                self.text.tag_configure("Token.Generic.Deleted", foreground = a.styles[Generic.Deleted])
+                self.text.tag_configure("Token.Generic.Inserted", foreground = a.styles[Generic.Inserted])
+                self.text.tag_configure("Token.Generic.Error", foreground = a.styles[Generic.Error])
+                self.text.tag_configure("Token.Generic.Emph", font = Font(family = basefont, size = basesize, slant =  a.styles[Generic.Emph]))
+                self.text.tag_configure("Token.Generic.Strong", font = Font(family = basefont, size = basesize , weight = a.styles[Generic.Strong]))
+                self.text.tag_configure("Token.Generic.Prompt", foreground = a.styles[Generic.Prompt])
+                self.text.tag_configure("Token.Generic.Output", foreground = a.styles[Generic.Output])
+                self.text.tag_configure("Token.Generic.Traceback", foreground = a.styles[Generic.Traceback])
+
+                self.text.tag_configure("Error", foreground = a.styles[Error].split(' ')[1], background = a.styles[Error].split(' ')[0].split(':')[1])
+
+
+                for token, content in LEXI(data, MyPythonLexer()):
+                        self.text.mark_set("range_end", "range_start + %dc" % len(content))
+                        self.text.tag_add(str(token), "range_start", "range_end")
+                        self.text.mark_set("range_start", "range_end")
+
+
+
+a = get_style_by_name('native')                                
 ed = GUI()

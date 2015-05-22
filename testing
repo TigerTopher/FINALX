@@ -1,0 +1,29 @@
+|int start|;
+|int end1|;
+
+print ("Enter start year:");
+read (start);
+
+print ("Enter end year:")
+read (end1);
+
+|int x|;
+
+for (|x = start|; (x <= end1); x ++)
+	|int y|
+	|int z|;
+	|int w;
+	|y = <x % 4>|;
+	|z = <x % 100>|;
+	|w = <x % 400>|;
+
+	if ((y == 0) and (z != 0))
+		print (x)
+		end
+	elif ((y == 0) and ((z == 0) and (w == 0)))
+		print (x);
+		end
+	fi
+
+end
+end
