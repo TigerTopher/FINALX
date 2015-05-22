@@ -1,0 +1,173 @@
+<statement>				->	<declaration>
+						->	<expression>
+						->	<condition>
+						->	<loop>
+						->	<return>
+
+<declaration>			->	<variableDeclaration>
+						->	<listDec>
+						->	<unionDec>
+						->	<tupleDec>
+
+<variableDeclaration> 	->	<dataType> identifier;
+						->	<dataType> identifier [ constant ];
+						->	<dataType> identifier [ constant ] = <expression> ;	 	
+
+
+<dataType>				->	boolean
+						->	char
+						->	int
+						->	long
+						->	float
+						->	double
+
+<stringOpStatement>		->	identifier . <stringOp> ( string );
+						->	identifier . <stringOp> ( identifier );
+
+<stringOp>				->	split
+						->	strip
+						->	concat
+						->	copy
+
+<variableDeclaration> 	->	<dataType> identifier [<arraySize>];
+						->	<dataType> identifier [<arraySize>] = <expression>;					
+
+<listDec>				->	identifier = <listDec> ;
+
+<list>					->	[ <listElem> ]
+
+<listElem>				-> 	<validListUnionValues>
+						->	<validListUnionValues> , <listElem>
+						->	Epsilon
+
+<listEval>				->	identifier [ constant ]
+
+<unionDec>				-> 	identifier = <union> ;
+<union>					->	{ unionElement }
+<unionElement>			->	string => <validListUnionValues>
+						->	string => <validListUnionValues>, <unionElement>
+						->	Epsilon
+
+<unionAdd>				-> identifier[string] = <validListUnionValues>
+
+<validListUnionValues>	->  int
+						->	long
+						->	float
+						->	double
+						->	char
+						->	boolean
+						->	string
+						->	<list>
+						->	<tuple>
+
+<unionKeys>				->	identifier.keys();
+<unionEval> 			->  identifier -> string
+
+<tupleDec>				-> identifier = <tuple>;
+<tuple>					-> ( <validListUnionValues>, )
+						-> ( <validListUnionValues>, <tupleElementMore> )
+
+<tupleElementMore>		-> <validListUnionValues> 
+						-> <validListUnionValues> , <tupleElementMore>
+						-> Epsilon
+
+<tupleStatement>		-> identifier = <tupleEval>;
+<tupleEval>				-> identifier [ constant ]
+
+<typeCastToInt> 		-> (int) identifier;
+<typeCastToFloat> 		-> (float) identifier;
+
+<WhileLoop> 			->	while ( <Condition> ) <Body>
+
+<Body>					->	<statement>;
+						->	<statement>; <statementMore>
+
+<statementMore>			->	<statement>; 
+						->	<statement>; <statementMore> 
+						->	Epsilon
+
+<ForLoop> 				-> for ( <Assignment> ; <Condition> ; <Iterator> ) <Body>
+
+<DoWhileLoop> 			-> do: <Body> while ( <Condition> );
+
+<IfThenElse> 			-> if ( <Condition> ): <Body> 
+						-> if ( <Condition> ): <Body> /n <elifClause>
+						-> if ( <Condition> ): <Body> /n <elifClause> else: <Body> 
+
+<elifClause>			->	elif ( <Condition> ): <Body> /n <elifClause> 
+						-> Epsilon
+
+<Condition> 			-> <RelationalExpression>
+						-> <Condition> <Compound> <Condition>
+						-> <Negation> <Condition>
+
+<Compound> 				->	AND 
+						->	OR
+
+<Iterator> 				-> <Assignment>
+						-> ++
+						-> --
+						-> Epsilon
+
+<Assignment> 			->	identifier <AssignmentOperator> <ArithmeticExpression>;
+						->	identifier = <listEval>;
+						->	identifier = <function>;
+						->	identifier = <unionEval>;
+
+<AssignmentOperator> 	->	=
+						->	+=
+						->	-= 
+						->	*=  
+						->	/= 
+						->	%=
+
+<expression>			->	<stringOpStatement>
+						->	<ArithmeticExpression>
+						->	<tupleEval>
+						->	<listEval>
+						->	<list>
+						->	<union> 
+						->	<tuple> 
+						->	<RelationalExpression>
+
+
+<RelationExpression>	->	<Operand> <RelationalOperator> <Operand> 
+
+<ArithmeticExpression> 	-> <Operand> <ArithmeticOperator> <Operand>
+
+<ArithmeticOperator> 	->	+
+						->	-
+						->	*
+						->	/
+						->	%
+
+<RelationOperator>		->	== 
+						->	>=
+						->	<=
+						->	>
+						->  <
+						->	!=
+
+<Operand>				->	<constant>
+						->	identifier
+						-> <RelationExpression>
+						->	boolean
+						-> <ArtihmeticExpression>
+
+<FunctionDefinition> 	-> <DataType> <Function>: <Body>
+
+<Function> 				-> identifier ( <Parameters> ) 
+
+<Parameter> 			->	<DataType> <Variable>
+						->	<DataType> <Variable>, <Parameter>
+						->	Epsilon
+
+<FunctionCall>			->	identifier ( <FunctionCallParameters> );
+
+<FunctionCallParameter> ->	<Variable>
+						->	<Variable>, <FunctionCallParameter>
+						->	Epsilon
+
+<return>				-> return constant;
+						-> return identifier;
+						-> return <expression>;

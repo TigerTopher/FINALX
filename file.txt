@@ -1,0 +1,222 @@
+GRAMMAR: 
+	statementAug -> statementTop
+
+	statementTop -> statement
+	statementTop -> end
+
+	statement -> declaration statementTop
+	
+		statement -> expression statementTop
+
+statement -> IfThenElse statementTop
+statement -> AssignmentHead statementTop
+
+statement -> WhileLoop statementTop
+statement -> ForLoop statementTop
+statement -> DoWhileLoop statementTop
+
+statement -> unionAdd statementTop
+statement -> unionKeys statementTop
+
+statement -> typeCastToInt statementTop
+statement -> typeCastToFloat statementTop
+
+statement -> FunctionDefinition statementTop
+statement -> FunctionCall statementTop
+
+statement -> returnDec statementTop
+statement -> stringOpStatement statementTop
+
+statement -> read ( identifier ) ; statementTop
+statement -> print ( content ) ; statementTop
+
+statement1 -> declaration
+statement1 -> expression
+statement1 -> IfThenElse
+statement1 -> AssignmentHead
+
+statement1 -> WhileLoop
+statement1 -> ForLoop
+statement1 -> DoWhileLoop
+
+statement1 -> unionAdd
+statement1 -> unionKeys
+
+statement1 -> typeCastToInt
+statement1 -> typeCastToFloat
+
+statement1 -> FunctionDefinition
+statement1 -> FunctionCall
+
+statement1 -> returnDec
+statement1 -> stringOpStatement
+
+statement1 -> read ( identifier ) ;
+statement1 -> print ( content ) ;
+
+content -> toPrint morePrint
+morePrint -> + toPrint morePrint
+morePrint -> ''
+toPrint -> " string "
+toPrint -> number
+toPrint -> identifier
+
+	declaration -> identifierDeclaration
+declaration -> listDec
+declaration -> unionDec
+
+	identifierDeclaration -> dataType identifier ;
+identifierDeclaration -> dataType identifier [ constant ] ;
+identifierDeclaration -> dataType identifier [ constant ] = expression ;
+identifierDeclaration -> dataType identifier = expression ;
+
+	dataType -> boolean
+	dataType -> char
+	dataType -> int
+	dataType -> long
+	dataType -> float
+	dataType -> double
+
+stringOpStatement -> identifier stringOp ( string ) ;
+stringOpStatement -> identifier stringOp ( identifier ) ;
+
+stringOp -> .split
+stringOp -> .strip
+stringOp -> .concat
+stringOp -> .copy
+
+	listDec -> identifier = list ;
+	list -> [ listElem ]
+	listElem -> validListUnionValues
+	listElem -> validListUnionValues , listElem
+	listElem -> '' 
+	listEval -> identifier [ constant ]
+
+unionDec -> identifier = union ;
+union -> { unionElement }
+unionElement -> string = validListUnionValues
+unionElement -> string = validListUnionValues , unionElement
+unionElement -> ''
+unionAdd -> identifier [ string ] = validListUnionValues ;
+
+validListUnionValues -> intValue
+validListUnionValues -> longValue
+validListUnionValues -> floatValue
+validListUnionValues -> doubleValue
+validListUnionValues -> charValue
+validListUnionValues -> booleanValue
+validListUnionValues -> stringValue
+validListUnionValues -> listValue
+
+unionKeys -> identifier .keys() ;
+unionEval -> identifier -> string
+
+typeCastToInt -> (int) identifier ;
+typeCastToFloat -> (float) identifier ;
+WhileLoop -> while Condition : Body
+
+Body -> statementMore
+statementMore -> indent statementMoreCont
+statementMoreCont -> statement1 statementMore
+statementMore -> end
+
+ForLoop -> for ( AssignmentHead Condition Increment ) Body
+DoWhileLoop -> do: Body while Condition ;
+
+Increment -> ; Operand Options
+Options -> Iterator
+Options -> AssignmentOperator Operand
+
+IfThenElse -> if Condition : Body addElif
+
+addElif -> addElif2
+addElif -> fi
+addElif -> else: Body
+
+addElif2 -> elifClause addElif
+
+elifClause -> elif Condition : Body
+
+Condition -> RelationExpression
+Condition -> ( Condition Compound Condition )
+Condition -> ( not Condition )
+
+	Operand -> identifier
+	Operand -> constant
+	Operand -> booleanValue
+
+	booleanValue -> True
+	booleanValue -> False
+
+	Compound -> AND
+	Compound -> OR
+
+Iterator -> ++
+Iterator -> --
+Iterator -> ''
+
+AssignmentHead -> | identifier AssignmentOption | ;
+AssignmentOption -> = AssignmentOptionChain
+AssignmentOption -> AssignmentOperator AssignmentOptions2
+AssignmentOptions2 -> constant
+AssignmentOptions2 -> ArithmeticExpression
+
+AssignmentOptionChain -> listEval
+AssignmentOptionChain -> Function
+AssignmentOptionChain -> unionEval
+AssignmentOptionChain -> AssignmentOptions2
+
+AssignmentOperator -> +=
+AssignmentOperator -> -=
+AssignmentOperator -> *= 
+AssignmentOperator -> /=
+AssignmentOperator -> %=
+
+	expression -> ArithmeticExpression
+	expression -> listEval
+	expression -> list
+	expression -> union
+	expression -> RelationExpression
+
+		RelationExpression -> ( Operand RelationOperator Operand )
+	ArithmeticExpression -> < Operand ArithmeticOperator Operand >
+
+	ArithmeticOperator -> +
+	ArithmeticOperator -> -
+	ArithmeticOperator -> *
+	ArithmeticOperator -> /
+	ArithmeticOperator -> %
+RelationOperator -> ==
+RelationOperator -> =
+RelationOperator -> =
+RelationOperator -> >
+RelationOperator -> <
+RelationOperator -> >=
+RelationOperator -> <=
+RelationOperator -> !=
+FunctionDefinition -> dataType Function : Body
+
+Function -> identifier ( Parameter )
+
+Parameter -> dataType identifier
+Parameter -> dataType identifier , Parameter
+Parameter -> ''
+FunctionCall -> identifier ( FunctionCallParameter ) ;
+FunctionCallParameter -> identifier
+FunctionCallParameter -> identifier , FunctionCallParameter
+FunctionCallParameter -> ''
+returnDec -> return constant ;
+returnDec -> return identifier ;
+returnDec -> return expression ;
+
+
+
++
+ - / *  %
+
+
+59 -5000 5.000 500
+5.34342
+34343.4
+[]
+['','',]
